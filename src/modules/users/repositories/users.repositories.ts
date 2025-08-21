@@ -2,21 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { schema } from '@/infra/database/schemas';
 import { database } from '@/infra/database';
 import { eq } from 'drizzle-orm';
-import type { CryptService } from '@/shared/services';
+import { CryptService } from '@/shared/services';
 
 @Injectable()
 export class UsersRepository {
-  constructor(private readonly cryptService: CryptService) {}
-
   async createUser(
     firstName: string,
     lastName: string,
     email: string,
     password: string,
   ) {
-    const passwordHash = await this.cryptService.hash(password);
+    const passwordHash = await CryptService.hash(password);
 
-    const result = await database
+    const [result] = await database
       .insert(schema.users)
       .values({
         firstName,

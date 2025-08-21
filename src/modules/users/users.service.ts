@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import type { CreateUserDto } from './dto/CreateUser.dto';
 import { UsersRepository } from './repositories/users.repositories';
+import { CategoriesRepository } from '@/modules/categories';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(
+    private readonly usersRepository: UsersRepository,
+    private readonly categoriesRepository: CategoriesRepository,
+  ) {}
 
   async create(dto: CreateUserDto) {
     const { email, firstName, lastName, password } = dto;
@@ -22,6 +26,15 @@ export class UsersService {
       password,
     );
 
-    return { ...user };
+    const categories =
+      await this.categoriesRepository.createInitialCategoriesByUserId(user.id);
+
+    return {
+      ...user,
+      categories: {
+        result: categories,
+        count: categories.length,
+      },
+    };
   }
 }

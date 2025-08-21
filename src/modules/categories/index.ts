@@ -1,1 +1,2 @@
-export * from './services/DrizzleCreateInitialCategory.service';
+export * from './categories.module';
+export * from './repositories/categories.repositories';
