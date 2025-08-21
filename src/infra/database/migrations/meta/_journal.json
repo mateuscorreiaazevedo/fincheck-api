@@ -36,6 +36,20 @@
       "when": 1755737446412,
       "tag": "0004_normal_maelstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1755752865260,
+      "tag": "0005_petite_giant_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1755752959517,
+      "tag": "0006_empty_logan",
+      "breakpoints": true
     }
   ]
 }

@@ -3,9 +3,14 @@ import { CreateUserDto } from '../dto/CreateUser.dto';
 import { database } from '@/infra/database';
 import { schema } from '@/infra/database/schemas';
 import { eq } from 'drizzle-orm';
+import { DrizzleCreateInitialCategoryService } from '@/modules/categories';
 
 @Injectable()
 export class DrizzleUsersService {
+  constructor(
+    private readonly createInitialCategoryService: DrizzleCreateInitialCategoryService,
+  ) {}
+
   async create({ email, firstName, lastName, password }: CreateUserDto) {
     const [newUser] = await database
       .insert(schema.users)
@@ -17,7 +22,11 @@ export class DrizzleUsersService {
       })
       .returning();
 
-    return newUser;
+    const categories = await this.createInitialCategoryService.execute(
+      newUser.id,
+    );
+
+    return { ...newUser, categories };
   }
 
   async findByEmail(email: string) {
@@ -33,6 +42,8 @@ export class DrizzleUsersService {
       return null;
     }
 
-    return user;
+    return {
+      ...user,
+    };
   }
 }
