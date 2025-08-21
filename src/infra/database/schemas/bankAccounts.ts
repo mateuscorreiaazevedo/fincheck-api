@@ -9,5 +9,6 @@ export const bankAccounts = pgTable('bank_accounts', {
   name: varchar({length: 255}).notNull(),
   initialBalanceInCents: integer('initial_balance_in_cents').notNull(),
   accountType: bankAccountType('account_type').notNull(),
+  color: varchar({length: 7}).notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })

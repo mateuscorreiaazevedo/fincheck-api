@@ -9,7 +9,7 @@ export const transactions = pgTable('transactions', {
   id: uuid().primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, {onDelete: 'cascade'}),
   bankAccountId: uuid('bank_account_id').notNull().references(() => bankAccounts.id, {onDelete: 'cascade'}),
-  categoryId: uuid('category_id').notNull().references(() => categories.id, {onDelete: 'cascade'}),
+  categoryId: uuid('category_id').references(() => categories.id, {onDelete: 'cascade'}),
   name: varchar({length: 255}).notNull(),
   valueInCents: integer('value_in_cents').notNull(),
   date: date('date').notNull(),

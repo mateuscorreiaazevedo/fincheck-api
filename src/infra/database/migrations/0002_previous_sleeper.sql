@@ -1,0 +1,1 @@
+ALTER TABLE "bank_accounts" ADD COLUMN "color" varchar(7) NOT NULL;

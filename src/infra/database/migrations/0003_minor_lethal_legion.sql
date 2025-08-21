@@ -1,0 +1,1 @@
+ALTER TABLE "categories" ADD COLUMN "transaction_type" "transaction_type" NOT NULL;
