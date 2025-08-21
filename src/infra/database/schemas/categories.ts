@@ -1,0 +1,10 @@
+import { varchar } from "drizzle-orm/pg-core";
+import { pgTable, uuid } from "drizzle-orm/pg-core";
+import { users } from "./users";
+
+export const categories = pgTable('categories', {
+  id: uuid().primaryKey().defaultRandom(),
+  name: varchar({length: 255}).notNull(),
+  icon: varchar({length: 1}).notNull(),
+  userId: uuid('user_id').notNull().references(() => users.id, {onDelete: 'cascade'}),
+})
