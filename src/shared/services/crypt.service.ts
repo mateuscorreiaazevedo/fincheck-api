@@ -2,8 +2,8 @@ import bcrypt from 'bcryptjs';
 
 export class CryptService {
   static async hash(password: string): Promise<string> {
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(password, salt);
+    const SALT_NUMBER = 12;
+    const hash = bcrypt.hashSync(password, SALT_NUMBER);
 
     return hash;
   }

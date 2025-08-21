@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import type { CreateUserDto } from './dto/CreateUser.dto';
+import type { CreateUserDto } from './dto/create-user.dto';
 import { CategoriesRepository, UsersRepository } from '@/infra/repositories';
 
 @Injectable()
