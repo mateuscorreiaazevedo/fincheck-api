@@ -1,6 +1,7 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthenticateDto } from './dto/authenticate.dto';
+import type { RefreshDto } from './dto/refresh.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -9,8 +10,11 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async authenticate(@Body() authenticateDto: AuthenticateDto) {
-    const token = this.authService.authenticate(authenticateDto);
+    return this.authService.authenticate(authenticateDto);
+  }
 
-    return token;
+  @Post('refresh')
+  async refreshAuthenticate(@Body() refreshDto: RefreshDto) {
+    return this.authService.refresh(refreshDto.refreshToken);
   }
 }

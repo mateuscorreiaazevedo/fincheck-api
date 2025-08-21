@@ -2,14 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthenticateDto } from './dto/authenticate.dto';
 import { UsersRepository } from '@/infra/repositories';
 import { CryptService } from '@/shared/services';
-import { JwtService } from '@nestjs/jwt';
-import { env } from '@/infra/config';
+import { AccessTokenService, RefreshTokenService } from '@/shared/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly jwtService: JwtService,
+    private readonly accessTokenService: AccessTokenService,
+    private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
   async authenticate(authenticateDto: AuthenticateDto) {
@@ -27,12 +27,34 @@ export class AuthService {
       throw new UnauthorizedException(['Email or password is incorrect.']);
     }
 
-    const accessToken = await this.jwtService.signAsync({ sub: user.id });
-    const refreshToken = await this.jwtService.signAsync(
-      { sub: user.id },
-      { expiresIn: '15d', secret: env.REFRESH_TOKEN_SECRET },
-    );
+    const accessToken = await this.accessTokenService.generate({
+      sub: user.id,
+    });
+    const refreshToken = await this.refreshTokenService.generate({
+      sub: user.id,
+    });
 
     return { accessToken, refreshToken };
+  }
+
+  async refresh(refreshToken: string) {
+    const validatedRefreshToken = await this.refreshTokenService.validate<{
+      sub: string;
+    }>(refreshToken);
+
+    if (!validatedRefreshToken) {
+      throw new UnauthorizedException(['Invalid refresh token.']);
+    }
+
+    const accountId = validatedRefreshToken.sub;
+
+    const accessToken = await this.accessTokenService.generate({
+      sub: accountId,
+    });
+    const newRefreshToken = await this.refreshTokenService.generate({
+      sub: accountId,
+    });
+
+    return { accessToken, refreshToken: newRefreshToken };
   }
 }
