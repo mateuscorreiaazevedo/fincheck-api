@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import type { CreateUserDto } from './dto/CreateUser.dto';
-import { UsersRepository } from './repositories/users.repositories';
-import { CategoriesRepository } from '@/modules/categories';
+import { CategoriesRepository, UsersRepository } from '@/infra/repositories';
 
 @Injectable()
 export class UsersService {
@@ -15,8 +14,8 @@ export class UsersService {
 
     const emailInUse = await this.usersRepository.findUserByEmail(email);
 
-    if (emailInUse) {
-      throw new Error('This email is already in use.');
+    if (!!emailInUse) {
+      throw new ConflictException(['This email is already in use.']);
     }
 
     const user = await this.usersRepository.createUser(
