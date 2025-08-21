@@ -1,15 +1,11 @@
 import { Module } from '@nestjs/common';
-import { DrizzleUsersService } from './services/DrizzleUsers.service';
-import { CreateUserController } from './controllers/CreateUser.controller';
+import { UsersService } from './users.service';
+import { UsersController } from './users.controller';
+import { UsersRepository } from './repositories/users.repositories';
 import { CryptService } from '@/shared/services';
-import { DrizzleCreateInitialCategoryService } from '../categories';
 
 @Module({
-  controllers: [CreateUserController],
-  providers: [
-    DrizzleUsersService,
-    CryptService,
-    DrizzleCreateInitialCategoryService,
-  ],
+  controllers: [UsersController],
+  providers: [UsersService, UsersRepository, CryptService],
 })
 export class UsersModule {}
