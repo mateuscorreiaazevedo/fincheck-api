@@ -1,11 +1,33 @@
+import { plainToInstance, Transform } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsString,
+  NotEquals,
+  IsNumber,
+  validateSync,
+} from 'class-validator';
 import 'dotenv/config';
-import z from 'zod';
 
-const envSchema = z.object({
-  DATABASE_URL: z.string().default(''),
-  PORT: z.coerce.number().default(8080),
-  JWT_SECRET: z.string().default('secret'),
-  REFRESH_TOKEN_SECRET: z.string().default('refresh_secret'),
-});
+class Env {
+  @IsString()
+  @IsNotEmpty()
+  DATABASE_URL: string;
 
-export const env = envSchema.parse(process.env);
+  @IsString()
+  @IsNotEmpty()
+  @NotEquals('secret')
+  JWT_SECRET: string;
+
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsNumber()
+  @IsNotEmpty()
+  PORT: number;
+}
+
+export const env: Env = plainToInstance(Env, process.env);
+
+const errors = validateSync(env);
+
+if (errors.length > 0) {
+  throw new Error(JSON.stringify(errors, null, 2));
+}
