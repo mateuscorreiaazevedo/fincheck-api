@@ -3,10 +3,10 @@ import { AuthService } from './auth.service';
 import { AuthenticateDto } from './dto/authenticate.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { SignUpDto } from './dto/sign-up';
-import { Public } from '@/shared/decorators';
+import { PublicRoute } from '@/shared/decorators';
 
+@PublicRoute()
 @Controller('auth')
-@Public()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
