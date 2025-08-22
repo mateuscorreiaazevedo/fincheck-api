@@ -103,16 +103,16 @@ export class UsersRepository {
   }
 
   async findUserById(id: string) {
-    const [result] = await database
-      .select({
-        id: schema.users.id,
-        firstName: schema.users.firstName,
-        lastName: schema.users.lastName,
-        email: schema.users.email,
-        createdAt: schema.users.createdAt,
-      })
-      .from(schema.users)
-      .where(eq(schema.users.id, id));
+    const result = await database.query.users.findFirst({
+      where: eq(schema.users.id, id),
+      columns: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        createdAt: true,
+      },
+    });
 
     if (!result) {
       return null;
