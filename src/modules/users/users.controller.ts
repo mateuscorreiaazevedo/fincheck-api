@@ -1,15 +1,13 @@
-import { Controller, Get, Req } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
-import type { Request } from 'express';
+import { ActiveUserId } from '@/shared/decorators';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
-  async getMe(@Req() req: Request) {
-    const userId = req['userId'];
-
+  async getMe(@ActiveUserId() userId: string) {
     return this.usersService.getById(userId);
   }
 }
