@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AccessTokenService } from './services/access-token.service';
-import { RefreshTokenService } from './services/refresh-token.service';
 import { JwtModule as JwtModuleNest } from '@nestjs/jwt';
 import { env } from '@/infra/config';
 
@@ -14,7 +13,7 @@ import { env } from '@/infra/config';
       },
     }),
   ],
-  providers: [AccessTokenService, RefreshTokenService],
-  exports: [AccessTokenService, RefreshTokenService],
+  providers: [AccessTokenService],
+  exports: [AccessTokenService],
 })
 export class JwtModule {}

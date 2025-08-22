@@ -2,15 +2,16 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthenticateDto } from './dto/authenticate.dto';
 import { UsersRepository } from '@/infra/repositories';
 import { CryptService } from '@/shared/services';
-import { AccessTokenService, RefreshTokenService } from '@/shared/jwt';
+import { AccessTokenService } from '@/shared/jwt';
 import { RefreshTokenRepository } from '@/infra/repositories';
+
+const REFRESH_TOKEN_EXPIRES_IN_DAYS = 15;
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly accessTokenService: AccessTokenService,
-    private readonly refreshTokenService: RefreshTokenService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {}
 
@@ -32,48 +33,39 @@ export class AuthService {
     const accessToken = await this.accessTokenService.generate({
       sub: user.id,
     });
-    const refreshToken = await this.refreshTokenService.generate({
-      sub: user.id,
-    });
 
-    await this.refreshTokenRepository.create(refreshToken, user.id);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRES_IN_DAYS);
 
-    return { accessToken, refreshToken };
+    const { id } = await this.refreshTokenRepository.create(expiresAt, user.id);
+
+    return { accessToken, refreshToken: id };
   }
 
-  async refresh(refreshToken: string) {
-    const validatedRefreshToken = await this.refreshTokenService.validate<{
-      sub: string;
-    }>(refreshToken);
+  async refresh(refreshTokenId: string) {
+    const refreshToken =
+      await this.refreshTokenRepository.findById(refreshTokenId);
 
-    if (!validatedRefreshToken) {
-      await this.refreshTokenRepository.delete(refreshToken);
+    if (!refreshToken) {
       throw new UnauthorizedException(['Invalid refresh token.']);
     }
 
-    const accountId = validatedRefreshToken.sub;
-
-    const refreshTokenAlreadyUsed =
-      await this.refreshTokenRepository.findByToken(refreshToken);
-
-    if (!refreshTokenAlreadyUsed) {
-      await this.refreshTokenRepository.deleteAllByAccountId(accountId);
-
-      throw new UnauthorizedException(['Invalid refresh token.']);
+    if (Date.now() > refreshToken.expiresAt.getTime()) {
+      await this.refreshTokenRepository.delete(refreshTokenId);
+      throw new UnauthorizedException(['Expired refresh token.']);
     }
 
-    const accessToken = await this.accessTokenService.generate({
-      sub: accountId,
-    });
-    const newRefreshToken = await this.refreshTokenService.generate({
-      sub: accountId,
-    });
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRES_IN_DAYS);
 
-    await Promise.all([
-      this.refreshTokenRepository.delete(refreshToken),
-      this.refreshTokenRepository.create(newRefreshToken, accountId),
+    const [accessToken, newRefreshToken] = await Promise.all([
+      this.accessTokenService.generate({
+        sub: refreshToken.accountId,
+      }),
+      this.refreshTokenRepository.create(expiresAt, refreshToken.accountId),
+      this.refreshTokenRepository.delete(refreshTokenId),
     ]);
 
-    return { accessToken, refreshToken: newRefreshToken };
+    return { accessToken, refreshToken: newRefreshToken.id };
   }
 }
