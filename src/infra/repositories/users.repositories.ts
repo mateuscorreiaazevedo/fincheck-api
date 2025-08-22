@@ -24,70 +24,99 @@ export class UsersRepository {
       })
       .returning();
 
-    const initialCategories = await database
+    await database
       .insert(schema.categories)
       .values([
-        { name: 'salaries', userId: result.id, icon: 'travel', type: 'INCOME' },
+        {
+          name: 'salaries',
+          userId: result.id,
+          icon: 'travel',
+          type: 'INCOME',
+          isDefault: true,
+        },
         {
           name: 'freelances',
           userId: result.id,
           icon: 'freelance',
           type: 'INCOME',
+          isDefault: true,
         },
-        { name: 'others', userId: result.id, icon: 'other', type: 'INCOME' },
-        { name: 'house', userId: result.id, icon: 'home', type: 'EXPENSE' },
-        { name: 'foods', userId: result.id, icon: 'food', type: 'EXPENSE' },
+        {
+          name: 'others',
+          userId: result.id,
+          icon: 'other',
+          type: 'INCOME',
+          isDefault: true,
+        },
+        {
+          name: 'house',
+          userId: result.id,
+          icon: 'home',
+          type: 'EXPENSE',
+          isDefault: true,
+        },
+        {
+          name: 'foods',
+          userId: result.id,
+          icon: 'food',
+          type: 'EXPENSE',
+          isDefault: true,
+        },
         {
           name: 'educations',
           userId: result.id,
           icon: 'education',
           type: 'EXPENSE',
+          isDefault: true,
         },
         {
           name: 'hobbies',
           userId: result.id,
           icon: 'fun',
           type: 'EXPENSE',
+          isDefault: true,
         },
         {
           name: 'market',
           userId: result.id,
           icon: 'grocery',
           type: 'EXPENSE',
+          isDefault: true,
         },
         {
           name: 'clothes',
           userId: result.id,
           icon: 'clothes',
           type: 'EXPENSE',
+          isDefault: true,
         },
         {
           name: 'transports',
           userId: result.id,
           icon: 'transport',
           type: 'EXPENSE',
+          isDefault: true,
         },
         {
           name: 'trips',
           userId: result.id,
           icon: 'travel',
           type: 'EXPENSE',
+          isDefault: true,
         },
         {
           name: 'others',
           userId: result.id,
           icon: 'other',
           type: 'EXPENSE',
+          isDefault: true,
         },
       ])
       .returning({
         id: schema.categories.id,
       });
 
-    return {
-      user: result,
-      categories: initialCategories,
-    };
+    return result;
   }
 
   async findUserByEmail(email: string) {

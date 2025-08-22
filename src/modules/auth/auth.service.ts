@@ -80,7 +80,7 @@ export class AuthService {
       password,
     );
 
-    const result = await this.generateAccessAndRefreshTokens(response.user.id);
+    const result = await this.generateAccessAndRefreshTokens(response.id);
 
     return result;
   }
