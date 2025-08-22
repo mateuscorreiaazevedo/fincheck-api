@@ -3,6 +3,7 @@ import { AuthenticateDto } from './dto/authenticate.dto';
 import { UsersRepository } from '@/infra/repositories';
 import { CryptService } from '@/shared/services';
 import { AccessTokenService, RefreshTokenService } from '@/shared/jwt';
+import { RefreshTokenRepository } from '@/infra/repositories';
 
 @Injectable()
 export class AuthService {
@@ -10,6 +11,7 @@ export class AuthService {
     private readonly usersRepository: UsersRepository,
     private readonly accessTokenService: AccessTokenService,
     private readonly refreshTokenService: RefreshTokenService,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {}
 
   async authenticate(authenticateDto: AuthenticateDto) {
@@ -34,6 +36,8 @@ export class AuthService {
       sub: user.id,
     });
 
+    await this.refreshTokenRepository.create(refreshToken, user.id);
+
     return { accessToken, refreshToken };
   }
 
@@ -43,10 +47,20 @@ export class AuthService {
     }>(refreshToken);
 
     if (!validatedRefreshToken) {
+      await this.refreshTokenRepository.delete(refreshToken);
       throw new UnauthorizedException(['Invalid refresh token.']);
     }
 
     const accountId = validatedRefreshToken.sub;
+
+    const refreshTokenAlreadyUsed =
+      await this.refreshTokenRepository.findByToken(refreshToken);
+
+    if (!refreshTokenAlreadyUsed) {
+      await this.refreshTokenRepository.deleteAllByAccountId(accountId);
+
+      throw new UnauthorizedException(['Invalid refresh token.']);
+    }
 
     const accessToken = await this.accessTokenService.generate({
       sub: accountId,
@@ -54,6 +68,11 @@ export class AuthService {
     const newRefreshToken = await this.refreshTokenService.generate({
       sub: accountId,
     });
+
+    await Promise.all([
+      this.refreshTokenRepository.delete(refreshToken),
+      this.refreshTokenRepository.create(newRefreshToken, accountId),
+    ]);
 
     return { accessToken, refreshToken: newRefreshToken };
   }
