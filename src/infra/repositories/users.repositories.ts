@@ -101,4 +101,23 @@ export class UsersRepository {
 
     return result;
   }
+
+  async findUserById(id: string) {
+    const [result] = await database
+      .select({
+        id: schema.users.id,
+        firstName: schema.users.firstName,
+        lastName: schema.users.lastName,
+        email: schema.users.email,
+        createdAt: schema.users.createdAt,
+      })
+      .from(schema.users)
+      .where(eq(schema.users.id, id));
+
+    if (!result) {
+      return null;
+    }
+
+    return result;
+  }
 }

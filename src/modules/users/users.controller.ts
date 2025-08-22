@@ -10,6 +10,6 @@ export class UsersController {
   async getMe(@Req() req: Request) {
     const userId = req['userId'];
 
-    return this.usersService.getUserById(userId);
+    return this.usersService.getById(userId);
   }
 }
