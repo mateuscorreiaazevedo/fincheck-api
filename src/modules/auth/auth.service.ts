@@ -1,9 +1,14 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthenticateDto } from './dto/authenticate.dto';
 import { UsersRepository } from '@/infra/repositories';
 import { CryptService } from '@/shared/services';
 import { AccessTokenService } from '@/shared/jwt';
 import { RefreshTokenRepository } from '@/infra/repositories';
+import { SignUpDto } from './dto/sign-up';
 
 const REFRESH_TOKEN_EXPIRES_IN_DAYS = 15;
 
@@ -15,8 +20,8 @@ export class AuthService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
   ) {}
 
-  async authenticate(authenticateDto: AuthenticateDto) {
-    const { email, password } = authenticateDto;
+  async signin(singin: AuthenticateDto) {
+    const { email, password } = singin;
 
     const user = await this.usersRepository.findUserByEmail(email);
 
@@ -30,16 +35,9 @@ export class AuthService {
       throw new UnauthorizedException(['Email or password is incorrect.']);
     }
 
-    const accessToken = await this.accessTokenService.generate({
-      sub: user.id,
-    });
+    const response = await this.generateAccessAndRefreshTokens(user.id);
 
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRES_IN_DAYS);
-
-    const { id } = await this.refreshTokenRepository.create(expiresAt, user.id);
-
-    return { accessToken, refreshToken: id };
+    return response;
   }
 
   async refresh(refreshTokenId: string) {
@@ -58,14 +56,46 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRES_IN_DAYS);
 
-    const [accessToken, newRefreshToken] = await Promise.all([
-      this.accessTokenService.generate({
-        sub: refreshToken.accountId,
-      }),
-      this.refreshTokenRepository.create(expiresAt, refreshToken.accountId),
+    const [response] = await Promise.all([
+      this.generateAccessAndRefreshTokens(refreshToken.accountId),
       this.refreshTokenRepository.delete(refreshTokenId),
     ]);
 
-    return { accessToken, refreshToken: newRefreshToken.id };
+    return response;
+  }
+
+  async create(dto: SignUpDto) {
+    const { email, firstName, lastName, password } = dto;
+
+    const emailInUse = await this.usersRepository.findUserByEmail(email);
+
+    if (!!emailInUse) {
+      throw new ConflictException(['This email is already in use.']);
+    }
+
+    const response = await this.usersRepository.createUser(
+      firstName,
+      lastName,
+      email,
+      password,
+    );
+
+    const result = await this.generateAccessAndRefreshTokens(response.user.id);
+
+    return result;
+  }
+
+  private async generateAccessAndRefreshTokens(userId: string) {
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_EXPIRES_IN_DAYS);
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.accessTokenService.generate({
+        sub: userId,
+      }),
+      this.refreshTokenRepository.create(expiresAt, userId),
+    ]);
+
+    return { accessToken, refreshToken: refreshToken.id };
   }
 }
