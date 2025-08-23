@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { database } from '../database';
 import { schema } from '../database/schemas';
-import { desc, eq, type InferInsertModel } from 'drizzle-orm';
+import { and, desc, eq, type InferInsertModel } from 'drizzle-orm';
 
 type CreateTransactionData = Omit<
   InferInsertModel<typeof schema.transactions>,
@@ -14,6 +14,15 @@ export class TransactionsRepository {
     return database.query.transactions.findMany({
       where: eq(schema.transactions.userId, userId),
       orderBy: desc(schema.transactions.date),
+    });
+  }
+
+  getTransactionById(id: string, userId?: string) {
+    return database.query.transactions.findFirst({
+      where: and(
+        eq(schema.transactions.id, id),
+        userId ? eq(schema.transactions.userId, userId) : undefined,
+      ),
     });
   }
 
