@@ -11,9 +11,17 @@ export class CategoriesRepository {
         id: schema.categories.id,
         name: schema.categories.name,
         icon: schema.categories.icon,
+        isDefault: schema.categories.isDefault,
+        type: schema.categories.type,
       })
       .from(schema.categories)
       .where(eq(schema.categories.userId, userId));
+  }
+
+  findById(id: string) {
+    return database.query.categories.findFirst({
+      where: eq(schema.categories.id, id),
+    });
   }
 
   async create(
@@ -33,5 +41,11 @@ export class CategoriesRepository {
       .returning();
 
     return result;
+  }
+
+  async delete(id: string) {
+    await database
+      .delete(schema.categories)
+      .where(eq(schema.categories.id, id));
   }
 }

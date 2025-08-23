@@ -1,5 +1,9 @@
 import { CategoriesRepository } from '@/infra/repositories';
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { CreateCategoryDto } from './dto/create-category.dto';
 
 @Injectable()
@@ -21,5 +25,19 @@ export class CategoriesService {
     );
 
     return category;
+  }
+
+  async deleteCategory(id: string) {
+    const category = await this.categoriesRepository.findById(id);
+
+    if (!category) {
+      throw new NotFoundException(['Category not found']);
+    }
+
+    if (category.isDefault) {
+      throw new ForbiddenException(['You cannot delete a default category']);
+    }
+
+    await this.categoriesRepository.delete(id);
   }
 }
