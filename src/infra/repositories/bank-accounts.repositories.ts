@@ -37,8 +37,17 @@ export class BankAccountsRepository {
   }
 
   async update(data: CreateBankAccountData) {
-    const [result] = await database.update(schema.bankAccounts).set(data);
+    const [result] = await database
+      .update(schema.bankAccounts)
+      .set(data)
+      .returning();
 
     return result;
+  }
+
+  async delete(id: string) {
+    await database
+      .delete(schema.bankAccounts)
+      .where(eq(schema.bankAccounts.id, id));
   }
 }
