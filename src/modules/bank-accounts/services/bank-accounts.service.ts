@@ -24,7 +24,7 @@ export class BankAccountsService {
     });
   }
 
-  findAllByUserId(userId: string) {
+  async findAllByUserId(userId: string) {
     return this.bankAccountsRepository.findAllByUserId(userId);
   }
 

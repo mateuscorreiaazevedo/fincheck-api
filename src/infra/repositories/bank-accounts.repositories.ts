@@ -13,6 +13,9 @@ export class BankAccountsRepository {
   async findAllByUserId(userId: string) {
     const result = await database.query.bankAccounts.findMany({
       where: eq(schema.bankAccounts.userId, userId),
+      with: {
+        transactions: true,
+      },
     });
 
     return result;
