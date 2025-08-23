@@ -45,10 +45,6 @@ export class TransactionsService {
   }
 
   async findAllByUserId(userId: string, filters: ListTransactionFilter) {
-    console.log({
-      filters,
-    });
-
     return this.transactionsRepository.getTransactionsByUserId(userId, filters);
   }
 

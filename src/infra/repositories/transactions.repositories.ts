@@ -12,11 +12,15 @@ type CreateTransactionData = Omit<
 @Injectable()
 export class TransactionsRepository {
   getTransactionsByUserId(userId: string, filters: ListTransactionFilter) {
-    const { month, year } = filters;
+    const { month, year, bankAccountId, transactionType } = filters;
 
     return database.query.transactions.findMany({
       where: and(
         eq(schema.transactions.userId, userId),
+        bankAccountId
+          ? eq(schema.transactions.bankAccountId, bankAccountId)
+          : undefined,
+        transactionType && eq(schema.transactions.type, transactionType),
         gte(schema.transactions.date, new Date(Date.UTC(year, month))),
         lt(schema.transactions.date, new Date(Date.UTC(year, month + 1))),
       ),
