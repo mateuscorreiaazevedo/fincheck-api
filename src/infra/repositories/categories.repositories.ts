@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { database } from '../database';
 import { schema } from '../database/schemas';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 @Injectable()
 export class CategoriesRepository {
@@ -18,9 +18,12 @@ export class CategoriesRepository {
       .where(eq(schema.categories.userId, userId));
   }
 
-  findById(id: string) {
+  findById(id: string, userId?: string) {
     return database.query.categories.findFirst({
-      where: eq(schema.categories.id, id),
+      where: and(
+        eq(schema.categories.id, id),
+        userId ? eq(schema.categories.userId, userId) : undefined,
+      ),
     });
   }
 

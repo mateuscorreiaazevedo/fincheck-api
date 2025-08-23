@@ -3,3 +3,4 @@ export * from './users.repositories';
 export * from './categories.repositories';
 export * from './refresh-token.repositories';
 export * from './bank-accounts.repositories';
+export * from './transactions.repositories';

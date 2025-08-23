@@ -1,3 +1,4 @@
+import { TransactionType } from '@/modules/transactions/models/Transaction';
 import { IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class CreateCategoryDto {
@@ -6,12 +7,9 @@ export class CreateCategoryDto {
   @MinLength(3)
   name: string;
 
-  @IsString()
+  @IsEnum(TransactionType)
   @IsNotEmpty()
-  @IsEnum(['INCOME', 'EXPENSE'], {
-    message: 'Transaction type must be INCOME or EXPENSE',
-  })
-  transactionType: 'INCOME' | 'EXPENSE';
+  transactionType: TransactionType;
 
   @IsString()
   @IsNotEmpty()

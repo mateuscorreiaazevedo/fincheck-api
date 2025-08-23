@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { CreateCategoryDto } from './dto/create-category.dto';
+import { CreateCategoryDto } from '../dto/create-category.dto';
 
 @Injectable()
 export class CategoriesService {
