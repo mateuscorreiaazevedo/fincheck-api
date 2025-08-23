@@ -72,12 +72,16 @@ export class TransactionsService {
       type,
       valueInCents,
       date: new Date(date),
-      userId,
     });
   }
 
-  remove(userId: string, id: string) {
-    return `This action removes a #${id} transaction`;
+  async remove(userId: string, transactionId: string) {
+    await this.validateTransactionOwnershipService.handle(
+      userId,
+      transactionId,
+    );
+
+    await this.transactionsRepository.delete(transactionId);
   }
 
   private async validateEntitiesOwnership({

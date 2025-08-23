@@ -35,7 +35,7 @@ export class TransactionsRepository {
     return result;
   }
 
-  async update(id: string, data: CreateTransactionData) {
+  async update(id: string, data: Omit<CreateTransactionData, 'userId'>) {
     const [result] = await database
       .update(schema.transactions)
       .set(data)
@@ -43,5 +43,11 @@ export class TransactionsRepository {
       .returning();
 
     return result;
+  }
+
+  async delete(id: string) {
+    await database
+      .delete(schema.transactions)
+      .where(eq(schema.transactions.id, id));
   }
 }
