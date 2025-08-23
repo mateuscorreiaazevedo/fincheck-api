@@ -78,6 +78,13 @@
       "when": 1755906783317,
       "tag": "0010_stormy_justin_hammer",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1755976707460,
+      "tag": "0011_hot_lady_deathstrike",
+      "breakpoints": true
     }
   ]
 }

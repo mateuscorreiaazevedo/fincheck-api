@@ -5,8 +5,6 @@ import { TransactionsRepository } from '@/infra/repositories';
 import { ValidateBankAccountOwnershipService } from '../../bank-accounts';
 import { ValidateCategoryOwnershipService } from '../../categories/services/validate-category-ownership.service';
 import { ValidateTransactionOwnershipService } from './validate-transaction-ownership.service';
-import type { TransactionModel } from '../models/Transaction';
-import { TransactionsMapper } from '../utils/TransactionsMapper';
 
 interface IValidateEntitiesOwnership {
   bankAccountId: string;
@@ -40,24 +38,16 @@ export class TransactionsService {
       name,
       type,
       valueInCents,
-      date,
+      date: new Date(date),
       userId,
     });
   }
 
   async findAllByUserId(userId: string) {
-    const data: TransactionModel[] = [];
-
     const transactions =
       await this.transactionsRepository.getTransactionsByUserId(userId);
 
-    transactions.forEach((transaction) => {
-      data.push(TransactionsMapper.toTransactionModel(transaction));
-    });
-
-    return {
-      data,
-    };
+    return transactions;
   }
 
   async update(
@@ -81,7 +71,7 @@ export class TransactionsService {
       name,
       type,
       valueInCents,
-      date,
+      date: new Date(date),
       userId,
     });
   }
