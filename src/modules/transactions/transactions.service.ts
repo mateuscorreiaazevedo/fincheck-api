@@ -49,11 +49,32 @@ export class TransactionsService {
     };
   }
 
-  update(id: string, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
+  async update(
+    userId: string,
+    transactionId: string,
+    updateTransactionDto: UpdateTransactionDto,
+  ) {
+    const { bankAccountId, categoryId, name, type, valueInCents, date } =
+      updateTransactionDto;
+
+    await this.validateEntitiesOwnership({
+      userId,
+      bankAccountId: bankAccountId,
+      categoryId: categoryId,
+    });
+
+    return this.transactionsRepository.update(transactionId, {
+      bankAccountId,
+      categoryId,
+      name,
+      type,
+      valueInCents,
+      date,
+      userId,
+    });
   }
 
-  remove(id: string) {
+  remove(userId: string, id: string) {
     return `This action removes a #${id} transaction`;
   }
 

@@ -41,7 +41,7 @@ export class BankAccountsService {
     const { name, initialBalanceInCents, accountType, color } =
       updateBankAccountDto;
 
-    return this.bankAccountsRepository.update({
+    return this.bankAccountsRepository.update(bankAccountId, {
       name,
       initialBalanceInCents,
       accountType,

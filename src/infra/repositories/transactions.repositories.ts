@@ -25,4 +25,14 @@ export class TransactionsRepository {
 
     return result;
   }
+
+  async update(id: string, data: CreateTransactionData) {
+    const [result] = await database
+      .update(schema.transactions)
+      .set(data)
+      .where(eq(schema.transactions.id, id))
+      .returning();
+
+    return result;
+  }
 }

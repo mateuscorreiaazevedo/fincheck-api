@@ -36,10 +36,11 @@ export class BankAccountsRepository {
     return result;
   }
 
-  async update(data: CreateBankAccountData) {
+  async update(id: string, data: CreateBankAccountData) {
     const [result] = await database
       .update(schema.bankAccounts)
       .set(data)
+      .where(eq(schema.bankAccounts.id, id))
       .returning();
 
     return result;
