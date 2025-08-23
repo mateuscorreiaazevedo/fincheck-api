@@ -20,7 +20,7 @@ export class CreateBankAccountDto {
 
   @IsEnum(BankAccountType)
   @IsNotEmpty()
-  transactionType: BankAccountType;
+  accountType: BankAccountType;
 
   @IsString()
   @IsNotEmpty()
