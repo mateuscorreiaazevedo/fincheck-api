@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { database } from '../database';
 import { schema } from '../database/schemas';
-import { and, desc, eq, type InferInsertModel } from 'drizzle-orm';
+import { and, desc, eq, gte, lt, type InferInsertModel } from 'drizzle-orm';
+import type { ListTransactionFilter } from '@/modules/transactions/types/ListTransactionFilter';
 
 type CreateTransactionData = Omit<
   InferInsertModel<typeof schema.transactions>,
@@ -10,9 +11,15 @@ type CreateTransactionData = Omit<
 
 @Injectable()
 export class TransactionsRepository {
-  getTransactionsByUserId(userId: string) {
+  getTransactionsByUserId(userId: string, filters: ListTransactionFilter) {
+    const { month, year } = filters;
+
     return database.query.transactions.findMany({
-      where: eq(schema.transactions.userId, userId),
+      where: and(
+        eq(schema.transactions.userId, userId),
+        gte(schema.transactions.date, new Date(Date.UTC(year, month))),
+        lt(schema.transactions.date, new Date(Date.UTC(year, month + 1))),
+      ),
       orderBy: desc(schema.transactions.date),
     });
   }

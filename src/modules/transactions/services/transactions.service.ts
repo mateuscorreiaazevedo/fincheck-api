@@ -5,6 +5,7 @@ import { TransactionsRepository } from '@/infra/repositories';
 import { ValidateBankAccountOwnershipService } from '../../bank-accounts';
 import { ValidateCategoryOwnershipService } from '../../categories/services/validate-category-ownership.service';
 import { ValidateTransactionOwnershipService } from './validate-transaction-ownership.service';
+import type { ListTransactionFilter } from '../types/ListTransactionFilter';
 
 interface IValidateEntitiesOwnership {
   bankAccountId: string;
@@ -43,11 +44,12 @@ export class TransactionsService {
     });
   }
 
-  async findAllByUserId(userId: string) {
-    const transactions =
-      await this.transactionsRepository.getTransactionsByUserId(userId);
+  async findAllByUserId(userId: string, filters: ListTransactionFilter) {
+    console.log({
+      filters,
+    });
 
-    return transactions;
+    return this.transactionsRepository.getTransactionsByUserId(userId, filters);
   }
 
   async update(
