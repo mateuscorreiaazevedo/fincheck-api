@@ -10,11 +10,16 @@ type CreateBankAccountData = Omit<
 
 @Injectable()
 export class BankAccountsRepository {
-  async findAllByUserId(userId: string) {
+  async findAllByUserIdWithCategories(userId: string) {
     const result = await database.query.bankAccounts.findMany({
       where: eq(schema.bankAccounts.userId, userId),
       with: {
-        transactions: true,
+        transactions: {
+          columns: {
+            valueInCents: true,
+            type: true,
+          },
+        },
       },
     });
 

@@ -25,7 +25,24 @@ export class BankAccountsService {
   }
 
   async findAllByUserId(userId: string) {
-    return this.bankAccountsRepository.findAllByUserId(userId);
+    const response =
+      await this.bankAccountsRepository.findAllByUserIdWithCategories(userId);
+
+    return response.map(({ transactions, ...item }) => {
+      const currentBalanceInCents = transactions.reduce((acc, transaction) => {
+        const signedValue =
+          transaction.type === 'INCOME'
+            ? transaction.valueInCents
+            : -transaction.valueInCents;
+
+        return acc + signedValue;
+      }, item.initialBalanceInCents);
+
+      return {
+        ...item,
+        currentBalanceInCents,
+      };
+    });
   }
 
   async update(

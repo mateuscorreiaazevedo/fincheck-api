@@ -22,6 +22,10 @@ class Env {
   @IsNumber()
   @IsNotEmpty()
   PORT: number;
+
+  @IsString()
+  @IsNotEmpty()
+  CORS_ORIGIN: string;
 }
 
 export const env: Env = plainToInstance(Env, process.env);
