@@ -70,7 +70,7 @@ export class AuthService {
     const emailInUse = await this.usersRepository.findUserByEmail(email);
 
     if (emailInUse) {
-      throw new ConflictException(['EMAIL_ALREADY_IN_USE.']);
+      throw new ConflictException(['EMAIL_ALREADY_IN_USE']);
     }
 
     const response = await this.usersRepository.createUser(
