@@ -26,13 +26,13 @@ export class AuthService {
     const user = await this.usersRepository.findUserByEmail(email);
 
     if (!user) {
-      throw new UnauthorizedException(['Invalid credentials.']);
+      throw new UnauthorizedException(['INVALID_CREDENTIALS']);
     }
 
     const isValidPassword = await CryptService.compare(password, user.password);
 
     if (!isValidPassword) {
-      throw new UnauthorizedException(['Email or password is incorrect.']);
+      throw new UnauthorizedException(['INVALID_CREDENTIALS']);
     }
 
     const response = await this.generateAccessAndRefreshTokens(user.id);
@@ -45,12 +45,12 @@ export class AuthService {
       await this.refreshTokenRepository.findById(refreshTokenId);
 
     if (!refreshToken) {
-      throw new UnauthorizedException(['Invalid refresh token.']);
+      throw new UnauthorizedException(['INVALID_REFRESH_TOKEN']);
     }
 
     if (Date.now() > refreshToken.expiresAt.getTime()) {
       await this.refreshTokenRepository.delete(refreshTokenId);
-      throw new UnauthorizedException(['Expired refresh token.']);
+      throw new UnauthorizedException(['EXPIRED_REFRESH_TOKEN']);
     }
 
     const expiresAt = new Date();
@@ -69,8 +69,8 @@ export class AuthService {
 
     const emailInUse = await this.usersRepository.findUserByEmail(email);
 
-    if (!!emailInUse) {
-      throw new ConflictException(['This email is already in use.']);
+    if (emailInUse) {
+      throw new ConflictException(['EMAIL_ALREADY_IN_USE.']);
     }
 
     const response = await this.usersRepository.createUser(
