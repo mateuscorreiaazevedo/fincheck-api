@@ -1,5 +1,5 @@
 import { env } from '@/infra/config';
-import { IS_PUBLIC_ROUTE } from '@/shared/constants';
+import { IS_PUBLIC_ROUTE, tokensKeys } from '@/shared/constants';
 import {
   Injectable,
   UnauthorizedException,
@@ -28,7 +28,9 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
 
-    const token = this.extractTokenFromHeader(request);
+    const token =
+      this.extractTokenFromCookie(request as Request) ||
+      this.extractTokenFromHeader(request as Request);
 
     if (!token) {
       throw new UnauthorizedException();
@@ -45,6 +47,11 @@ export class AuthGuard implements CanActivate {
     }
 
     return true;
+  }
+
+  private extractTokenFromCookie(request: Request): string | undefined {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return request.cookies[tokensKeys.accessToken];
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
