@@ -9,7 +9,7 @@ import { env } from '@/infra/config';
       global: true,
       secret: env.JWT_SECRET,
       signOptions: {
-        expiresIn: '15s',
+        expiresIn: '1h',
       },
     }),
   ],
