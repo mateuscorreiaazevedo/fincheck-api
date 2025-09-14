@@ -18,7 +18,7 @@ class Env {
   @NotEquals('secret')
   JWT_SECRET: string;
 
-  @Transform(({ value }) => parseInt(value, 10))
+  @Transform(({ value }) => parseInt(value as string, 10))
   @IsNumber()
   @IsNotEmpty()
   PORT: number;
@@ -26,6 +26,10 @@ class Env {
   @IsString()
   @IsNotEmpty()
   CORS_ORIGIN: string;
+
+  @IsString()
+  @IsNotEmpty()
+  COOKIE_DOMAIN: string;
 }
 
 export const env: Env = plainToInstance(Env, process.env);

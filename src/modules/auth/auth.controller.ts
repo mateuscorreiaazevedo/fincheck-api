@@ -11,9 +11,14 @@ import {
 import { AuthService } from './auth.service';
 import { AuthenticateDto } from './dto/authenticate.dto';
 import { SignUpDto } from './dto/sign-up';
-import { PublicRoute } from '@/shared/decorators';
+import {
+  ClientType,
+  PublicRoute,
+  type ClientTypeValue,
+} from '@/shared/decorators';
 import type { Request, Response } from 'express';
 import { tokensKeys } from '@/shared/constants';
+import { env } from '@/infra/config';
 
 @PublicRoute()
 @Controller('auth')
@@ -22,9 +27,17 @@ export class AuthController {
 
   @Post('signin')
   @HttpCode(HttpStatus.OK)
-  async signIn(@Body() signInDto: AuthenticateDto, @Res() res: Response) {
+  async signIn(
+    @Body() signInDto: AuthenticateDto,
+    @Res() res: Response,
+    @ClientType() clientType: ClientTypeValue,
+  ) {
     const { accessToken, refreshToken } =
       await this.authService.signin(signInDto);
+
+    if (clientType === 'mobile') {
+      return res.json({ accessToken, refreshToken });
+    }
 
     this.setAccessAndRefreshTokensOnCookies(res, accessToken, refreshToken);
 
@@ -32,7 +45,12 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refreshAuthenticate(@Req() req: Request, @Res() res: Response) {
+  @HttpCode(HttpStatus.OK)
+  async refreshAuthenticate(
+    @Req() req: Request,
+    @Res() res: Response,
+    @ClientType() clientType: ClientTypeValue,
+  ) {
     const refreshToken = req.cookies[tokensKeys.refreshToken];
 
     if (!refreshToken) {
@@ -42,14 +60,26 @@ export class AuthController {
     const { accessToken, refreshToken: newRefreshToken } =
       await this.authService.refresh(refreshToken as string);
 
+    if (clientType === 'mobile') {
+      return res.json({ accessToken, refreshToken: newRefreshToken });
+    }
+
     this.setAccessAndRefreshTokensOnCookies(res, accessToken, newRefreshToken);
 
     return res.json({ refresh: true });
   }
 
   @Post('signup')
-  async create(@Body() dto: SignUpDto, @Res() res: Response) {
+  async create(
+    @Body() dto: SignUpDto,
+    @Res() res: Response,
+    @ClientType() clientType: ClientTypeValue,
+  ) {
     const { accessToken, refreshToken } = await this.authService.create(dto);
+
+    if (clientType === 'mobile') {
+      res.json({ accessToken, refreshToken });
+    }
 
     this.setAccessAndRefreshTokensOnCookies(res, accessToken, refreshToken);
 
@@ -81,6 +111,7 @@ export class AuthController {
     res.cookie(tokensKeys.accessToken, accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      domain: env.COOKIE_DOMAIN,
       sameSite: 'strict',
       maxAge: 60 * 60 * 1000, // 1 hour
     });
@@ -88,6 +119,7 @@ export class AuthController {
     res.cookie(tokensKeys.refreshToken, refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      domain: env.COOKIE_DOMAIN,
       sameSite: 'strict',
       maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
     });
