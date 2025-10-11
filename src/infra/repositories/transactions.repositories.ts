@@ -24,6 +24,14 @@ export class TransactionsRepository {
         gte(schema.transactions.date, new Date(Date.UTC(year, month))),
         lt(schema.transactions.date, new Date(Date.UTC(year, month + 1))),
       ),
+
+      with: {
+        category: {
+          columns: {
+            icon: true,
+          },
+        },
+      },
       orderBy: desc(schema.transactions.date),
     });
   }

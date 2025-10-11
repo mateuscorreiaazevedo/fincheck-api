@@ -45,7 +45,15 @@ export class TransactionsService {
   }
 
   async findAllByUserId(userId: string, filters: ListTransactionFilter) {
-    return this.transactionsRepository.getTransactionsByUserId(userId, filters);
+    const response = await this.transactionsRepository.getTransactionsByUserId(
+      userId,
+      filters,
+    );
+
+    return response.map(({ category, ...transaction }) => ({
+      ...transaction,
+      icon: category?.icon ?? null,
+    }));
   }
 
   async update(
