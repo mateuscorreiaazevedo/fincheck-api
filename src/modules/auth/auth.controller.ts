@@ -51,7 +51,10 @@ export class AuthController {
     @Res() res: Response,
     @ClientType() clientType: ClientTypeValue,
   ) {
-    const refreshToken = req.cookies[tokensKeys.refreshToken];
+    const refreshToken =
+      clientType === 'mobile'
+        ? req.body?.refreshToken
+        : req.cookies[tokensKeys.refreshToken];
 
     if (!refreshToken) {
       throw new UnauthorizedException(['INVALID_REFRESH_TOKEN']);
