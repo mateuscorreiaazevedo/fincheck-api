@@ -32,12 +32,18 @@ export class AuthController {
     @Res() res: Response,
     @ClientType() clientType: ClientTypeValue,
   ) {
+    console.log('login initiated');
     const { accessToken, refreshToken } =
       await this.authService.signin(signInDto);
 
+    console.log('login successful, tokens generated');
+
     if (clientType === 'mobile') {
+      console.log('mobile client detected, returning tokens in response body');
       return res.json({ accessToken, refreshToken });
     }
+
+    console.log('web client detected, setting tokens in cookies');
 
     this.setAccessAndRefreshTokensOnCookies(res, accessToken, refreshToken);
 
@@ -51,21 +57,37 @@ export class AuthController {
     @Res() res: Response,
     @ClientType() clientType: ClientTypeValue,
   ) {
+    console.log('refresh token request initiated');
+
     const refreshToken =
       clientType === 'mobile'
         ? req.body?.refreshToken
         : req.cookies[tokensKeys.refreshToken];
 
+    console.log('extracted refresh token:', refreshToken);
+
     if (!refreshToken) {
       throw new UnauthorizedException(['INVALID_REFRESH_TOKEN']);
     }
 
+    console.log(
+      'valid refresh token found, proceeding to refresh authentication',
+    );
+
     const { accessToken, refreshToken: newRefreshToken } =
       await this.authService.refresh(refreshToken as string);
 
+    console.log('tokens refreshed successfully');
+
     if (clientType === 'mobile') {
+      console.log(
+        'mobile client detected, returning new tokens in response body',
+      );
+
       return res.json({ accessToken, refreshToken: newRefreshToken });
     }
+
+    console.log('web client detected, setting new tokens in cookies');
 
     this.setAccessAndRefreshTokensOnCookies(res, accessToken, newRefreshToken);
 
@@ -78,11 +100,17 @@ export class AuthController {
     @Res() res: Response,
     @ClientType() clientType: ClientTypeValue,
   ) {
+    console.log('signup initiated with data:', dto);
+
     const { accessToken, refreshToken } = await this.authService.create(dto);
 
+    console.log('signup successful, tokens generated');
+
     if (clientType === 'mobile') {
+      console.log('mobile client detected, returning tokens in response body');
       res.json({ accessToken, refreshToken });
     }
+    console.log('web client detected, setting tokens in cookies');
 
     this.setAccessAndRefreshTokensOnCookies(res, accessToken, refreshToken);
 
