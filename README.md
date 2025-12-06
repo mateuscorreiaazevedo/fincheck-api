@@ -1,98 +1,255 @@
+# Fincheck API
+
+API REST para controle financeiro pessoal desenvolvida com NestJS e TypeScript.
+
+## 📋 Sobre o Projeto
+
+O Fincheck é uma aplicação backend robusta para gerenciamento de finanças pessoais, permitindo aos usuários controlar suas contas bancárias, categorias de transações e movimentações financeiras (receitas e despesas). A API foi construída seguindo as melhores práticas de arquitetura, segurança e organização de código.
+
+## 🚀 Tecnologias
+
+- **[NestJS](https://nestjs.com/)** - Framework Node.js progressivo
+- **[TypeScript](https://www.typescriptlang.org/)** - Superset JavaScript com tipagem estática
+- **[Drizzle ORM](https://orm.drizzle.team/)** - ORM TypeScript-first para PostgreSQL
+- **[PostgreSQL](https://www.postgresql.org/)** - Banco de dados relacional
+- **[JWT](https://jwt.io/)** - Autenticação baseada em tokens
+- **[bcryptjs](https://github.com/dcodeIO/bcrypt.js)** - Criptografia de senhas
+- **[class-validator](https://github.com/typestack/class-validator)** - Validação de dados
+- **[class-transformer](https://github.com/typestack/class-transformer)** - Transformação de objetos
+
+## 🏗️ Arquitetura
+
+O projeto segue uma arquitetura modular baseada em princípios SOLID e DDD (Domain-Driven Design):
+
+```
+src/
+├── infra/              # Camada de infraestrutura
+│   ├── config/         # Configurações e variáveis de ambiente
+│   ├── database/       # Schemas, migrations e conexão com DB
+│   └── repositories/   # Implementações de repositórios
+├── modules/            # Módulos da aplicação
+│   ├── auth/           # Autenticação e autorização
+│   ├── bank-accounts/  # Gerenciamento de contas bancárias
+│   ├── categories/     # Categorias de transações
+│   ├── transactions/   # Transações financeiras
+│   └── users/          # Gerenciamento de usuários
+└── shared/             # Recursos compartilhados
+    ├── constants/      # Constantes da aplicação
+    ├── decorators/     # Decorators customizados
+    ├── jwt/            # Serviços JWT
+    ├── pipes/          # Pipes de validação
+    └── services/       # Serviços compartilhados
+```
+
+## ✨ Funcionalidades
+
+### Autenticação
+
+- ✅ Registro de usuários com validação de dados
+- ✅ Login com JWT (Access Token + Refresh Token)
+- ✅ Refresh token via cookies HTTP-only
+- ✅ Logout com invalidação de tokens
+- ✅ Guards de autenticação e autorização
+- ✅ Suporte a web e mobile (via ClientType)
+
+### Contas Bancárias
+
+- ✅ CRUD completo de contas bancárias
+- ✅ Validação de propriedade de recursos
+- ✅ Diferentes tipos de contas (corrente, poupança, etc.)
+
+### Categorias
+
+- ✅ Gerenciamento de categorias de transações
+- ✅ Categorias personalizadas por usuário
+- ✅ Categorização de receitas e despesas
+
+### Transações
+
+- ✅ Registro de receitas e despesas
+- ✅ Filtros avançados (mês, ano, conta bancária, tipo)
+- ✅ Validação de dados e relacionamentos
+- ✅ Histórico completo de movimentações
+
+## 🔒 Segurança
+
+- **Autenticação JWT** com tokens de acesso e refresh
+- **Cookies HTTP-only** para armazenamento seguro de tokens
+- **Bcrypt** para hash de senhas
+- **Guards personalizados** para proteção de rotas
+- **Validação de propriedade** de recursos por usuário
+- **CORS configurável** para controle de origens permitidas
+- **Validação de dados** em todas as entradas
+
+## 🛠️ Instalação
+
+### Pré-requisitos
+
+- Node.js (v18 ou superior)
+- PostgreSQL (v14 ou superior)
+- npm ou yarn
+
+### Passos
+
+1. Clone o repositório
+
+```bash
+git clone <url-do-repositorio>
+cd fincheck/api
+```
+
+2. Instale as dependências
+
+```bash
+npm install
+```
+
+3. Configure as variáveis de ambiente
+
+```bash
+# Crie um arquivo .env na raiz do projeto
+DATABASE_URL=postgresql://user:password@localhost:5432/fincheck
+JWT_SECRET=sua-chave-secreta
+JWT_REFRESH_SECRET=sua-chave-secreta-refresh
+PORT=3000
+CORS_ORIGIN=http://localhost:3001
+```
+
+4. Execute as migrations
+
+```bash
+npm run db:migrate
+```
+
+5. Inicie o servidor
+
+```bash
+# Desenvolvimento
+npm run start:dev
+
+# Produção
+npm run build
+npm run start:prod
+```
+
+## 📦 Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+npm run start:dev        # Inicia em modo desenvolvimento com watch
+npm run start:debug      # Inicia em modo debug
+
+# Build e Produção
+npm run build            # Compila o projeto
+npm run start:prod       # Inicia em modo produção
+
+# Database
+npm run db:generate      # Gera migrations a partir dos schemas
+npm run db:migrate       # Executa migrations pendentes
+npm run db:studio        # Abre Drizzle Studio (GUI do banco)
+
+# Testes
+npm run test             # Executa testes unitários
+npm run test:watch       # Executa testes em modo watch
+npm run test:cov         # Gera relatório de cobertura
+npm run test:e2e         # Executa testes end-to-end
+
+# Qualidade de Código
+npm run lint             # Executa ESLint
+npm run format           # Formata código com Prettier
+```
+
+## 🗃️ Banco de Dados
+
+O projeto utiliza Drizzle ORM com PostgreSQL. As principais entidades são:
+
+- **users** - Usuários da aplicação
+- **bank_accounts** - Contas bancárias dos usuários
+- **categories** - Categorias de transações
+- **transactions** - Transações financeiras
+- **refresh_tokens** - Tokens de refresh para autenticação
+
+### Migrations
+
+As migrations são gerenciadas automaticamente pelo Drizzle Kit:
+
+```bash
+# Gerar nova migration após alterar schemas
+npm run db:generate
+
+# Aplicar migrations pendentes
+npm run db:migrate
+
+# Visualizar banco de dados
+npm run db:studio
+```
+
+## 📚 API Endpoints
+
+### Autenticação
+
+- `POST /auth/signup` - Registro de novo usuário
+- `POST /auth/signin` - Login
+- `POST /auth/refresh` - Renovar access token
+- `POST /auth/logout` - Logout
+
+### Contas Bancárias
+
+- `GET /bank-accounts` - Listar contas
+- `POST /bank-accounts` - Criar conta
+- `PUT /bank-accounts/:id` - Atualizar conta
+- `DELETE /bank-accounts/:id` - Remover conta
+
+### Categorias
+
+- `GET /categories` - Listar categorias
+- `POST /categories` - Criar categoria
+- `PUT /categories/:id` - Atualizar categoria
+- `DELETE /categories/:id` - Remover categoria
+
+### Transações
+
+- `GET /transactions` - Listar transações (com filtros)
+- `POST /transactions` - Criar transação
+- `PUT /transactions/:id` - Atualizar transação
+- `DELETE /transactions/:id` - Remover transação
+
+## 🧪 Testes
+
+O projeto está configurado com Jest para testes unitários e e2e:
+
+```bash
+# Testes unitários
+npm run test
+
+# Testes em modo watch
+npm run test:watch
+
+# Cobertura de testes
+npm run test:cov
+
+# Testes e2e
+npm run test:e2e
+```
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
+
+## 📄 Licença
+
+Este projeto é privado e não possui licença pública.
+
+## 👤 Autor
+
+Desenvolvido por [Mateus Correia Azevedo](https://github.com/mateuscorreiaazevedo)
+
+---
+
+**Nota:** Certifique-se de configurar corretamente as variáveis de ambiente antes de executar o projeto.
+
+---
+
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  Powered by <a href="http://nestjs.com/" target="blank">NestJS</a>
 </p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ yarn install
-```
-
-## Compile and run the project
-
-```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
